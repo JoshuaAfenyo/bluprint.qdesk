@@ -30,10 +30,18 @@ self.addEventListener("activate", (event) => {
   );
 });
 
-// Fetch: serve from cache first (works offline), fall back to network.
+// Fetch: try the network first (so rates are always current when online),
+// and cache each fresh response as we go. Only fall back to the cached
+// copy if the network request fails (offline / no connection).
 self.addEventListener("fetch", (event) => {
   event.respondWith(
-    caches.match(event.request).then((cached) => cached || fetch(event.request))
+    fetch(event.request)
+      .then((networkResponse) => {
+        const responseClone = networkResponse.clone();
+        caches.open(CACHE).then((cache) => cache.put(event.request, responseClone));
+        return networkResponse;
+      })
+      .catch(() => caches.match(event.request))
   );
 });
 

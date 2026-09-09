@@ -516,6 +516,12 @@ function buildTierTabs(){
 }
 
 function populateMaterials(){
+  // Remember the currently selected material by NAME (not index) before
+  // rebuilding the list, since the same material can sit at a different
+  // index -- or not exist at all -- in another tier's material array.
+  const list = materialSelect.options[materialSelect.selectedIndex];
+  const previousMaterial = list ? list.textContent : null;
+
   materialSelect.innerHTML = '';
   (largeFormatData[currentTier] || []).forEach((m, i)=>{
     const opt = document.createElement('option');
@@ -523,6 +529,13 @@ function populateMaterials(){
     opt.textContent = m.material;
     materialSelect.appendChild(opt);
   });
+
+  // Re-select the same material if the new tier still offers it;
+  // otherwise fall back to the first option (previous behavior).
+  if(previousMaterial){
+    const matchIdx = (largeFormatData[currentTier] || []).findIndex(m => m.material === previousMaterial);
+    if(matchIdx !== -1) materialSelect.value = matchIdx;
+  }
 }
 
 document.getElementById('rateToggle').addEventListener('click', e=>{
