@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quote Desk</title>
+<meta name="theme-color" content="#1b1b1b" id="themeColorMeta">
+<style>
+  :root{
+    --ink:#1b1b1b;
+    --paper:#f6f4ee;
+    --card:#ffffff;
+    --line:#d8d3c5;
+    --tape:#e8a33d;
+    --tape-dark:#c8811f;
+    --cut:#2f6f5e;
+    --cut-dark:#1f4d40;
+    --danger:#b5432f;
+    --muted:#6b6558;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background-color:var(--paper);
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(27,27,27,0.10) 1.1px, transparent 0);
+    background-size: 10px 10px;
+    color:var(--ink);
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    min-height:100vh;
+    padding-bottom:60px;
+  }
+  .colorbar{
+    display:flex;
+    height:9px;
+    width:100%;
+  }
+  .colorbar span{flex:1;}
+  .colorbar .c{background:#00AEEF;}
+  .colorbar .m{background:#EC008C;}
+  .colorbar .y{background:#FFF200;}
+  .colorbar .k{background:#1b1b1b;}
+  .regmark{
+    position:fixed;
+    width:22px; height:22px;
+    opacity:0.18;
+    pointer-events:none;
+  }
+  .regmark::before, .regmark::after{
+    content:"";
+    position:absolute;
+    background:var(--ink);
+  }
+  .regmark::before{ left:50%; top:0; bottom:0; width:1px; transform:translateX(-50%); }
+  .regmark::after{ top:50%; left:0; right:0; height:1px; transform:translateY(-50%); }
+  .regmark-circle{
+    position:absolute; left:50%; top:50%;
+    width:14px; height:14px;
+    border:1px solid var(--ink);
+    border-radius:50%;
+    transform:translate(-50%,-50%);
+  }
+  .regmark.tl{top:14px; left:14px;}
+  .regmark.tr{top:14px; right:14px;}
+
+  header{
+    padding:32px 20px 18px;
+    max-width:980px;
+    margin:0 auto;
+    display:flex;
+    align-items:center;
+    gap:22px;
+  }
+  .shop-logo{
+    display:none;
+    flex:0 0 auto;
+    width:100px;
+    height:100px;
+    object-fit:contain;
+    background:#ffffff;
+    border-radius:16px;
+    box-shadow:0 4px 14px rgba(27,27,27,0.18);
+  }
+  .header-text{min-width:0;}
+  @media (max-width:520px){
+    header{flex-direction:column; align-items:flex-start; gap:12px;}
+    .shop-logo{width:84px; height:84px;}
+  }
+  .eyebrow{
+    font-size:13px;
+    letter-spacing:0.02em;
+    color:var(--cut-dark);
+    font-weight:700;
+    margin-bottom:6px;
+  }
+  h1{
+    font-size:clamp(30px,5vw,46px);
+    margin:0 0 6px;
+    line-height:1.02;
+    letter-spacing:-0.01em;
+  }
+  h1 .cut{
+    display:inline-block;
+    background:var(--ink);
+    color:var(--paper);
+    padding:0 10px 2px;
+    transform:rotate(-1deg);
+  }
+  .sub{color:var(--muted); font-size:15px; max-width:560px;}
+
+  nav{
+    max-width:980px;
+    margin:18px auto 0;
+    padding:0 20px;
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+  nav button{
+    font-family:inherit;
+    font-size:14px;
+    font-weight:700;
+    padding:10px 16px;
+    border:2px solid var(--ink);
+    background:var(--card);
+    color:var(--ink);
+    cursor:pointer;
+    border-radius:2px;
+  }
+  nav button.active{
+    background:var(--ink);
+    color:var(--paper);
+  }
+
+  main{max-width:980px; margin:0 auto; padding:24px 20px;}
+  .panel{display:none;}
+  .panel.active{display:block;}
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:24px;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.03);
+  }
+
+  .grid{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:16px;
+  }
+  @media (max-width:640px){ .grid{grid-template-columns:1fr;} }
+
+  label{
+    display:block;
+    font-size:12px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+    color:var(--muted);
+    margin-bottom:6px;
+  }
+  select, input[type=number]{
+    width:100%;
+    font-family:inherit;
+    font-size:16px;
+    padding:11px 12px;
+    border:1.5px solid var(--ink);
+    border-radius:2px;
+    background:var(--paper);
+    color:var(--ink);
+  }
+  select:focus, input:focus{ outline:2px solid var(--cut); outline-offset:1px; }
+
+  .field{margin-bottom:16px;}
+
+  .dim-row{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:12px;
+  }
+
+  .toggle-group{
+    display:flex;
+    border:1.5px solid var(--ink);
+    border-radius:2px;
+    overflow:hidden;
+  }
+  .toggle-group button{
+    flex:1;
+    font-family:inherit;
+    font-size:14px;
+    font-weight:700;
+    padding:10px;
+    border:none;
+    background:var(--paper);
+    color:var(--ink);
+    cursor:pointer;
+    border-right:1.5px solid var(--ink);
+  }
+  .toggle-group button:last-child{border-right:none;}
+  .toggle-group button.on{background:var(--cut); color:#fff;}
+
+  .tier-tabs{display:flex; gap:6px; margin-bottom:18px; flex-wrap:wrap;}
+  .tier-tabs button{
+    font-family:inherit;
+    font-size:13px;
+    font-weight:700;
+    padding:8px 14px;
+    border:1.5px solid var(--ink);
+    background:var(--paper);
+    border-radius:20px;
+    cursor:pointer;
+  }
+  .tier-tabs button.on{background:var(--tape); border-color:var(--tape-dark);}
+
+  .result{
+    margin-top:22px;
+    padding:20px;
+    background:var(--ink);
+    color:var(--paper);
+    border-radius:4px;
+    position:relative;
+    overflow:hidden;
+  }
+  .result::before{
+    content:"";
+    position:absolute; left:0; top:0; bottom:0; width:8px;
+    background: repeating-linear-gradient(45deg, var(--tape), var(--tape) 6px, var(--tape-dark) 6px, var(--tape-dark) 12px);
+  }
+  .result-label{font-size:12px; text-transform:uppercase; letter-spacing:0.05em; color:#c9c4b4; margin-bottom:4px;}
+  .result-value{font-size:38px; font-weight:800; letter-spacing:-0.02em;}
+  .result-meta{font-size:13px; color:#c9c4b4; margin-top:8px; line-height:1.5;}
+
+  .search{margin-bottom:18px;}
+
+  table{width:100%; border-collapse:collapse; font-size:14px;}
+  th{
+    text-align:left;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+    color:var(--muted);
+    padding:8px 10px;
+    border-bottom:2px solid var(--ink);
+  }
+  td{padding:10px; border-bottom:1px solid var(--line);}
+  tr:last-child td{border-bottom:none;}
+  .price{font-weight:700; white-space:nowrap;}
+  .section-title{
+    font-size:13px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+    color:var(--cut-dark);
+    margin:28px 0 10px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .section-title:first-child{margin-top:0;}
+  .section-title::after{content:""; flex:1; height:1px; background:var(--line);}
+
+  footer{
+    max-width:980px; margin:40px auto 0; padding:0 20px;
+    font-size:12px; color:var(--muted);
+  }
+  .footer-note{margin-bottom:8px;}
+  .footer-contact{
+    display:flex; flex-wrap:wrap;
+    align-items:center;
+    gap:6px 16px;
+  }
+  .footer-contact a{color:inherit; text-decoration:none;}
+  .footer-contact a:hover{color:var(--ink); text-decoration:underline;}
+  .footer-contact .item{
+    display:inline-flex; align-items:center; gap:5px;
+  }
+  .footer-contact svg{
+    width:12px; height:12px; flex:0 0 auto;
+    fill:none; stroke:currentColor; stroke-width:1.8;
+  }
+  .update-banner{
+    position:fixed;
+    left:50%;
+    bottom:-80px;
+    transform:translateX(-50%);
+    background:var(--ink);
+    color:var(--paper);
+    padding:14px 18px;
+    border-radius:6px;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    font-size:14px;
+    box-shadow:0 6px 24px rgba(0,0,0,0.25);
+    z-index:100;
+    transition:bottom 0.3s ease;
+  }
+  .update-banner.show{ bottom:20px; }
+  .update-banner button{
+    font-family:inherit;
+    font-weight:700;
+    font-size:13px;
+    padding:8px 14px;
+    border:none;
+    border-radius:4px;
+    background:var(--tape);
+    color:var(--ink);
+    cursor:pointer;
+  }
+  .load-state{
+    max-width:980px; margin:60px auto; padding:0 20px;
+    color:var(--muted); font-size:14px; text-align:center;
+  }
+</style>
+</head>
+<body>
+
+<div class="colorbar"><span class="c"></span><span class="m"></span><span class="y"></span><span class="k"></span></div>
+<div class="regmark tl"><div class="regmark-circle"></div></div>
+<div class="regmark tr"><div class="regmark-circle"></div></div>
+
+<header>
+  <img class="shop-logo" id="shopLogo" alt="">
+  <div class="header-text">
+    <div class="eyebrow" id="eyebrowText">LOADING…</div>
+    <h1>Quote <span class="cut">Desk</span></h1>
+    <div class="sub" id="taglineText"></div>
+  </div>
+</header>
+
+<div id="loadError" class="load-state" style="display:none;">
+  Couldn't load pricing data (config.json). Check that the file exists next to index.html and reload the page.
+</div>
+
+<div id="appRoot" style="display:none;">
+
+<nav>
+  <button class="tab-btn active" data-panel="large">Large Format</button>
+  <button class="tab-btn" data-panel="digital">Digital Press</button>
+  <button class="tab-btn" data-panel="souvenirs">Souvenirs &amp; Other</button>
+  <button class="tab-btn" data-panel="converter">Unit Converter</button>
+</nav>
+
+<main>
+
+  <!-- LARGE FORMAT -->
+  <section id="large" class="panel active">
+    <div class="tier-tabs" id="tierTabs"></div>
+    <div class="card">
+      <div class="grid">
+        <div class="field">
+          <label for="material">Material</label>
+          <select id="material"></select>
+        </div>
+        <div class="field">
+          <label for="rateType">Rate</label>
+          <div class="toggle-group" id="rateToggle">
+            <button data-rate="general" class="on">General</button>
+            <button data-rate="designer">Designer</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="unit">Dimension unit</label>
+        <div class="toggle-group" id="unitToggle">
+          <button data-unit="in" class="on">Inches</button>
+          <button data-unit="ft">Feet</button>
+          <button data-unit="m">Meters</button>
+          <button data-unit="cm">Centimeters</button>
+        </div>
+      </div>
+
+      <div class="dim-row">
+        <div class="field">
+          <label for="width">Width</label>
+          <input type="number" id="width" min="0" step="0.01" value="1">
+        </div>
+        <div class="field">
+          <label for="height">Length</label>
+          <input type="number" id="height" min="0" step="0.01" value="1">
+        </div>
+      </div>
+
+      <div class="result">
+        <div class="result-label">Quoted price</div>
+        <div class="result-value" id="largeResult">0.00</div>
+        <div class="result-meta" id="largeMeta"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DIGITAL PRESS -->
+  <section id="digital" class="panel">
+    <div class="card">
+      <div class="field search">
+        <label for="digitalSearch">Search</label>
+        <input type="text" id="digitalSearch" placeholder="e.g. sticker, laminate, envelope">
+      </div>
+      <table>
+        <thead><tr><th>Item</th><th style="text-align:right">A4</th><th style="text-align:right">A3</th></tr></thead>
+        <tbody id="digitalTable"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- SOUVENIRS & OTHER -->
+  <section id="souvenirs" class="panel">
+    <div class="card">
+      <div class="field search">
+        <label for="souvSearch">Search</label>
+        <input type="text" id="souvSearch" placeholder="e.g. mug, t-shirt, roll-up">
+      </div>
+      <div class="section-title">Souvenirs</div>
+      <table><tbody id="souvTable"></tbody></table>
+      <div class="section-title">Other items</div>
+      <table><tbody id="otherTable"></tbody></table>
+    </div>
+  </section>
+
+  <!-- UNIT CONVERTER -->
+  <section id="converter" class="panel">
+    <div class="card">
+      <div class="grid">
+        <div class="field">
+          <label for="convValue">Value</label>
+          <input type="number" id="convValue" min="0" step="0.01" value="1">
+        </div>
+        <div class="field">
+          <label for="convUnit">Unit</label>
+          <select id="convUnit">
+            <option value="in">Inches</option>
+            <option value="ft">Feet</option>
+            <option value="m">Meters</option>
+            <option value="cm">Centimeters</option>
+            <option value="mm">Millimeters</option>
+          </select>
+        </div>
+      </div>
+
+      <table>
+        <tbody id="convTable"></tbody>
+      </table>
+    </div>
+  </section>
+
+</main>
+
+<footer id="footerText"></footer>
+
+</div><!-- /appRoot -->
+
+<script>
+// ---------- HELPERS (currency/locale set once config loads) ----------
+let CURRENCY = "";
+let LOCALE = "en-US";
+const fmt = n => CURRENCY + " " + n.toLocaleString(LOCALE, {minimumFractionDigits:2, maximumFractionDigits:2});
+
+// How many square-<unit> per square meter, per the shop's own conversion
+// convention (see config's pricing.priceUnit) -- NOT the physicist's exact
+// value, but whatever the shop's own pricing sheet already uses, so results
+// match their existing paperwork exactly.
+const AREA_FACTOR = { in: 1550, ft: 10.76, m: 1, cm: 10000 };
+const AREA_UNIT_LABEL = { in: 'in²', ft: 'ft²', m: 'm²', cm: 'cm²' };
+
+let PRICE_UNIT = null; // the unit config.json's rates are priced per -- must be set explicitly by config, never guessed
+
+// Converts a width x height entered in `fromUnit` into an area expressed
+// in PRICE_UNIT, so rates never need manual unit conversion when a shop's
+// working unit already matches PRICE_UNIT (the common case: zero conversion).
+function toPriceUnitArea(width, height, fromUnit){
+  const area = width * height;
+  return area * AREA_FACTOR[PRICE_UNIT] / AREA_FACTOR[fromUnit];
+}
+
+// ---------- TABS ----------
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.panel).classList.add('active');
+  });
+});
+
+// ---------- APP STATE (populated from config.json) ----------
+let largeFormatData = {};
+let digitalData = [];
+let souvenirData = [];
+let otherData = [];
+let currentTier = "";
+let currentRate = "general";
+let currentUnit = "in";
+
+const tierTabsEl = document.getElementById('tierTabs');
+const materialSelect = document.getElementById('material');
+
+function buildTierTabs(){
+  tierTabsEl.innerHTML = '';
+  Object.keys(largeFormatData).forEach((tier, i)=>{
+    if(i === 0) currentTier = tier;
+    const b = document.createElement('button');
+    b.textContent = tier;
+    if(tier === currentTier) b.classList.add('on');
+    b.addEventListener('click', ()=>{
+      currentTier = tier;
+      document.querySelectorAll('#tierTabs button').forEach(x=>x.classList.remove('on'));
+      b.classList.add('on');
+      populateMaterials();
+      calcLarge();
+    });
+    tierTabsEl.appendChild(b);
+  });
+}
+
+function populateMaterials(){
+  materialSelect.innerHTML = '';
+  (largeFormatData[currentTier] || []).forEach((m, i)=>{
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = m.material;
+    materialSelect.appendChild(opt);
+  });
+}
+
+document.getElementById('rateToggle').addEventListener('click', e=>{
+  if(e.target.tagName !== 'BUTTON') return;
+  currentRate = e.target.dataset.rate;
+  document.querySelectorAll('#rateToggle button').forEach(b=>b.classList.remove('on'));
+  e.target.classList.add('on');
+  calcLarge();
+});
+
+document.getElementById('unitToggle').addEventListener('click', e=>{
+  if(e.target.tagName !== 'BUTTON') return;
+  currentUnit = e.target.dataset.unit;
+  document.querySelectorAll('#unitToggle button').forEach(b=>b.classList.remove('on'));
+  e.target.classList.add('on');
+  calcLarge();
+});
+
+['material','width','height'].forEach(id=>{
+  document.getElementById(id).addEventListener('input', calcLarge);
+});
+
+function calcLarge(){
+  const idx = materialSelect.value;
+  const mat = (largeFormatData[currentTier] || [])[idx];
+  if(!mat) return;
+  const w = parseFloat(document.getElementById('width').value) || 0;
+  const h = parseFloat(document.getElementById('height').value) || 0;
+  const area = toPriceUnitArea(w, h, currentUnit);
+  const rate = mat[currentRate];
+  const total = area * rate;
+
+  document.getElementById('largeResult').textContent = fmt(total);
+  const unitLabel = {in:'in', ft:'ft', m:'m', cm:'cm'}[currentUnit];
+  const priceUnitLabel = AREA_UNIT_LABEL[PRICE_UNIT];
+  document.getElementById('largeMeta').textContent =
+    `${mat.material} · ${currentTier} · ${currentRate === 'general' ? 'General' : 'Designer'} rate `
+    + `· ${w}${unitLabel} × ${h}${unitLabel} = ${area.toFixed(4)} ${priceUnitLabel} @ ${fmt(rate)}/${priceUnitLabel}`;
+}
+
+// ---------- DIGITAL PRESS ----------
+const digitalTable = document.getElementById('digitalTable');
+function renderDigital(filter=''){
+  digitalTable.innerHTML = '';
+  digitalData
+    .filter(d => d.item.toLowerCase().includes(filter.toLowerCase()))
+    .forEach(d=>{
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${d.item}</td><td class="price" style="text-align:right">${fmt(d.a4)}</td><td class="price" style="text-align:right">${fmt(d.a3)}</td>`;
+      digitalTable.appendChild(tr);
+    });
+}
+document.getElementById('digitalSearch').addEventListener('input', e=> renderDigital(e.target.value));
+
+// ---------- SOUVENIRS & OTHER ----------
+const souvTable = document.getElementById('souvTable');
+const otherTable = document.getElementById('otherTable');
+function renderList(tableEl, data, filter=''){
+  tableEl.innerHTML = '';
+  data
+    .filter(d => d.item.toLowerCase().includes(filter.toLowerCase()))
+    .forEach(d=>{
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${d.item}</td><td class="price" style="text-align:right">${fmt(d.price)}</td>`;
+      tableEl.appendChild(tr);
+    });
+}
+document.getElementById('souvSearch').addEventListener('input', e=>{
+  renderList(souvTable, souvenirData, e.target.value);
+  renderList(otherTable, otherData, e.target.value);
+});
+
+// ---------- UNIT CONVERTER ----------
+const toMeters = {in: 0.0254, ft: 0.3048, m: 1, cm: 0.01, mm: 0.001};
+const unitLabels = {in: 'Inches', ft: 'Feet', m: 'Meters', cm: 'Centimeters', mm: 'Millimeters'};
+
+const convValueEl = document.getElementById('convValue');
+const convUnitEl = document.getElementById('convUnit');
+const convTable = document.getElementById('convTable');
+
+function renderConverter(){
+  const val = parseFloat(convValueEl.value) || 0;
+  const fromUnit = convUnitEl.value;
+  const meters = val * toMeters[fromUnit];
+
+  convTable.innerHTML = '';
+  Object.keys(toMeters).forEach(unit=>{
+    const converted = meters / toMeters[unit];
+    const tr = document.createElement('tr');
+    const isSource = unit === fromUnit;
+    tr.innerHTML = `<td${isSource ? ' style="font-weight:700"' : ''}>${unitLabels[unit]}</td>
+      <td class="price" style="text-align:right">${converted.toLocaleString(LOCALE, {maximumFractionDigits:4})}</td>`;
+    convTable.appendChild(tr);
+  });
+}
+convValueEl.addEventListener('input', renderConverter);
+convUnitEl.addEventListener('change', renderConverter);
+
+// ---------- CONFIG LOADING ----------
+function applyTheme(theme){
+  const root = document.documentElement.style;
+  const map = {
+    ink:'--ink', paper:'--paper', card:'--card', line:'--line',
+    tape:'--tape', tapeDark:'--tape-dark', cut:'--cut', cutDark:'--cut-dark',
+    danger:'--danger', muted:'--muted'
+  };
+  Object.entries(map).forEach(([key, cssVar])=>{
+    if(theme && theme[key]) root.setProperty(cssVar, theme[key]);
+  });
+  if(theme && theme.ink){
+    document.getElementById('themeColorMeta').setAttribute('content', theme.ink);
+  }
+}
+
+function applyManifest(config){
+  // Manifest name/short_name/colors are generated from config at runtime,
+  // so a shop only ever needs to edit config.json -- never manifest.json --
+  // to rebrand the installed-app name and icon background.
+  const manifest = {
+    name: (config.shopName ? config.shopName + " Quote Desk" : "Quote Desk"),
+    short_name: config.shopName || "Quote Desk",
+    start_url: "./index.html",
+    display: "standalone",
+    background_color: (config.theme && config.theme.paper) || "#f6f4ee",
+    theme_color: (config.theme && config.theme.ink) || "#1b1b1b",
+    icons: [{ src: "icon.svg", sizes: "any", type: "image/svg+xml" }]
+  };
+  const blob = new Blob([JSON.stringify(manifest)], {type: "application/json"});
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('link');
+  link.rel = "manifest";
+  link.href = url;
+  document.head.appendChild(link);
+}
+
+const ICONS = {
+  pin: '<svg viewBox="0 0 24 24"><path d="M12 21s-7-6.1-7-11.5A7 7 0 0 1 19 9.5C19 14.9 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.3"/></svg>',
+  phone: '<svg viewBox="0 0 24 24"><path d="M5 4h3.5l1.5 5-2.2 1.7a12 12 0 0 0 5.5 5.5L14.5 14l5 1.5V19a2 2 0 0 1-2 2C10.6 21 3 13.4 3 6a2 2 0 0 1 2-2z"/></svg>',
+  mail: '<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 6.5l9 6.5 9-6.5"/></svg>'
+};
+
+function escapeHTML(str){
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function buildFooter(config){
+  const el = document.getElementById('footerText');
+  el.innerHTML = '';
+
+  if(config.footerNote){
+    const note = document.createElement('div');
+    note.className = 'footer-note';
+    note.textContent = config.footerNote;
+    el.appendChild(note);
+  }
+
+  const c = config.contact;
+  if(c){
+    const row = document.createElement('div');
+    row.className = 'footer-contact';
+    const parts = [];
+
+    if(c.role || c.location){
+      const label = [c.role, c.location].filter(Boolean).join(' — ');
+      const icon = c.location ? ICONS.pin : '';
+      parts.push(`<span class="item">${icon}${escapeHTML(label)}</span>`);
+    }
+    if(c.phone){
+      const tel = c.phone.replace(/[^\d+]/g, '');
+      parts.push(`<a class="item" href="tel:${escapeHTML(tel)}">${ICONS.phone}${escapeHTML(c.phone)}</a>`);
+    }
+    if(c.email){
+      parts.push(`<a class="item" href="mailto:${escapeHTML(c.email)}">${ICONS.mail}${escapeHTML(c.email)}</a>`);
+    }
+    row.innerHTML = parts.join('');
+    el.appendChild(row);
+  }
+}
+
+function initApp(config){
+  document.title = config.shopName ? (config.shopName + " Quote Desk") : "Quote Desk";
+  document.getElementById('eyebrowText').textContent = (config.eyebrow || config.shopName || "").toUpperCase();
+  document.getElementById('taglineText').textContent = config.tagline || "";
+  buildFooter(config);
+
+  const logoEl = document.getElementById('shopLogo');
+  if(config.logo){
+    logoEl.src = config.logo;
+    logoEl.alt = config.shopName ? (config.shopName + " logo") : "logo";
+    logoEl.style.display = "block";
+  }
+
+  CURRENCY = config.currency || "";
+  LOCALE = config.locale || "en-US";
+
+  applyTheme(config.theme);
+  applyManifest(config);
+
+  const pricing = config.pricing || {};
+
+  // priceUnit is mandatory and must be one AREA_FACTOR actually recognizes.
+  // A missing or invalid priceUnit would otherwise silently mismatch the
+  // rate data against the wrong unit and undercharge/overcharge every quote
+  // with no visible error -- so this fails loudly instead of guessing.
+  if(!pricing.priceUnit || !AREA_FACTOR[pricing.priceUnit]){
+    document.getElementById('loadError').textContent =
+      `config.json is missing a valid "pricing.priceUnit" (must be one of: in, ft, m, cm). `
+      + `Refusing to calculate, since guessing wrong would silently misprice every job.`;
+    document.getElementById('loadError').style.display = '';
+    return;
+  }
+  PRICE_UNIT = pricing.priceUnit;
+
+  // Default the dimension-unit toggle to whatever unit the shop prices in,
+  // since that's the common case and needs zero conversion math at all.
+  if(AREA_FACTOR[PRICE_UNIT]){
+    currentUnit = PRICE_UNIT;
+    document.querySelectorAll('#unitToggle button').forEach(b=>{
+      b.classList.toggle('on', b.dataset.unit === PRICE_UNIT);
+    });
+  }
+
+  largeFormatData = pricing.largeFormat || {};
+  digitalData = pricing.digital || [];
+  souvenirData = pricing.souvenirs || [];
+  otherData = pricing.other || [];
+
+  buildTierTabs();
+  populateMaterials();
+  calcLarge();
+  renderDigital();
+  renderList(souvTable, souvenirData);
+  renderList(otherTable, otherData);
+  renderConverter();
+
+  document.getElementById('appRoot').style.display = '';
+}
+
+fetch('./config.json')
+  .then(res => {
+    if(!res.ok) throw new Error('config.json not found');
+    return res.json();
+  })
+  .then(initApp)
+  .catch(err=>{
+    console.error(err);
+    document.getElementById('loadError').style.display = '';
+  });
+</script>
+
+<div class="update-banner" id="updateBanner">
+  <span>New prices are available.</span>
+  <button id="updateBtn">Refresh</button>
+</div>
+
+<script>
+// ---------- PWA / OFFLINE UPDATE HANDLING ----------
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').then(reg => {
+      // Browsers only auto-check for a new sw.js once every ~24 hours.
+      // Calling update() here forces a fresh check on every page load,
+      // so multiple same-day price updates are caught right away.
+      reg.update();
+
+      // Fires when a NEW service worker has been found and is installing.
+      reg.addEventListener('updatefound', () => {
+        const newWorker = reg.installing;
+        newWorker.addEventListener('statechange', () => {
+          // "installed" + an existing controller means this is an UPDATE,
+          // not the very first install -- so show the banner.
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            document.getElementById('updateBanner').classList.add('show');
+          }
+        });
+      });
+    });
+
+    // When the new worker takes control, reload once to load the new files.
+    let refreshed = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (refreshed) return;
+      refreshed = true;
+      window.location.reload();
+    });
+  });
+}
+
+document.getElementById('updateBtn').addEventListener('click', () => {
+  navigator.serviceWorker.getRegistration().then(reg => {
+    if (reg && reg.waiting) {
+      reg.waiting.postMessage('SKIP_WAITING');
+    }
+  });
+});
+</script>
+
+</body>
+</html>

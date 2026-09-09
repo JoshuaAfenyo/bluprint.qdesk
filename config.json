@@ -1,0 +1,381 @@
+{
+  "shopName": "BluPrint Advertising",
+  "eyebrow": "BLUPRINT ADVERTISING - CRISPLINE PRINTS",
+  "tagline": "Type in a job, get the price. Large format, digital press, souvenirs — all in one place.",
+  "logo": "logo.jpg",
+  "footerNote": "Prices in Ghana Cedis (GH₵).",
+  "contact": {
+    "role": "Printing Service",
+    "location": "5 Odonko Street, Accra Newtown, Accra, Ghana",
+    "phone": "+233 50 109 9670",
+    "email": "bluprintad@gmail.com"
+  },
+  "currency": "GH₵",
+  "locale": "en-GH",
+  "theme": {
+    "ink": "#1b1b1b",
+    "paper": "#f6f4ee",
+    "card": "#ffffff",
+    "line": "#d7dde3",
+    "tape": "#29ABE2",
+    "tapeDark": "#1B84B0",
+    "cut": "#1C8FC2",
+    "cutDark": "#106485",
+    "danger": "#b5432f",
+    "muted": "#666666"
+  },
+  "pricing": {
+    "priceUnit": "ft",
+    "largeFormat": {
+      "Print & Cut": [
+        {
+          "material": "Self Adhesive Vinyl (SAV)",
+          "general": 6.1059,
+          "designer": 5.4944
+        },
+        {
+          "material": "Transparent",
+          "general": 7.1338,
+          "designer": 6.4201
+        },
+        {
+          "material": "Flexi Glossy/Matte",
+          "general": 4.4758,
+          "designer": 4.027
+        },
+        {
+          "material": "Flexi Premium",
+          "general": 7.2862,
+          "designer": 6.5576
+        },
+        {
+          "material": "PVC Grey Back",
+          "general": 8.9219,
+          "designer": 8.0297
+        },
+        {
+          "material": "One Way Vision",
+          "general": 11.2546,
+          "designer": 10.1292
+        },
+        {
+          "material": "Flag",
+          "general": 7.1561,
+          "designer": 4.9768
+        },
+        {
+          "material": "Heat Transfer",
+          "general": 18.0762,
+          "designer": 16.6868
+        },
+        {
+          "material": "Photopaper",
+          "general": 8.9219,
+          "designer": 4.9768
+        },
+        {
+          "material": "SAV Matte",
+          "general": 8.0669,
+          "designer": 7.2602
+        },
+        {
+          "material": "Magnetic",
+          "general": 23.7918,
+          "designer": 22.6022
+        },
+        {
+          "material": "Cutting",
+          "general": 4.5539,
+          "designer": 4.0985
+        },
+        {
+          "material": "Frosted Vinyl",
+          "general": 7.8996,
+          "designer": 7.1097
+        },
+        {
+          "material": "BlueBack Paper",
+          "general": 8.9219,
+          "designer": 4.9768
+        }
+      ],
+      "Print Only": [
+        {
+          "material": "Self Adhesive Vinyl (SAV)",
+          "general": 4.4602,
+          "designer": 4.0139
+        },
+        {
+          "material": "Transparent",
+          "general": 5.0576,
+          "designer": 4.5146
+        },
+        {
+          "material": "Flexi Glossy/Matte",
+          "general": 4.4758,
+          "designer": 4.027
+        },
+        {
+          "material": "Flexi Premium",
+          "general": 7.2862,
+          "designer": 6.5576
+        },
+        {
+          "material": "PVC Grey Back",
+          "general": 8.9219,
+          "designer": 8.0297
+        },
+        {
+          "material": "One Way Vision",
+          "general": 11.2546,
+          "designer": 10.1292
+        },
+        {
+          "material": "Flag",
+          "general": 7.1561,
+          "designer": 4.9768
+        },
+        {
+          "material": "Heat Transfer",
+          "general": 16.6357,
+          "designer": 15.8039
+        },
+        {
+          "material": "Photopaper",
+          "general": 8.9219,
+          "designer": 4.9768
+        },
+        {
+          "material": "SAV Matte",
+          "general": 7.1375,
+          "designer": 6.4238
+        },
+        {
+          "material": "Magnetic",
+          "general": 23.7918,
+          "designer": 22.6022
+        },
+        {
+          "material": "Cutting",
+          "general": 1.8587,
+          "designer": 1.6729
+        },
+        {
+          "material": "Frosted Vinyl",
+          "general": 7.4349,
+          "designer": 6.6914
+        },
+        {
+          "material": "Cutting Only",
+          "general": 1.8587,
+          "designer": 1.6729
+        },
+        {
+          "material": "Blueback Paper",
+          "general": 7.342,
+          "designer": 4.9563
+        },
+        {
+          "material": "Canvas Material",
+          "general": 11.2546,
+          "designer": 10.1292
+        }
+      ],
+      "Metallic & White": [
+        {
+          "material": "Self Adhesive Vinyl (SAV)",
+          "general": 5.283,
+          "designer": 4.408
+        },
+        {
+          "material": "Transparent",
+          "general": 5.7783,
+          "designer": 4.5731
+        },
+        {
+          "material": "SAV Matte",
+          "general": 6.934,
+          "designer": 6.5873
+        }
+      ]
+    },
+    "digital": [
+      {
+        "item": "Bond Paper / Art Paper",
+        "a4": 1,
+        "a3": 2
+      },
+      {
+        "item": "Art Card / Matt Card",
+        "a4": 1.8,
+        "a3": 3.6
+      },
+      {
+        "item": "Chromocoat",
+        "a4": 2,
+        "a3": 4
+      },
+      {
+        "item": "Envelope",
+        "a4": 1.8,
+        "a3": 3.6
+      },
+      {
+        "item": "DL Envelope",
+        "a4": 1,
+        "a3": 1.8
+      },
+      {
+        "item": "Heat Transfer (Opaque)",
+        "a4": 4,
+        "a3": 8
+      },
+      {
+        "item": "Heat Transfer (Transparent)",
+        "a4": 3.5,
+        "a3": 7
+      },
+      {
+        "item": "Special Card",
+        "a4": 4,
+        "a3": 8
+      },
+      {
+        "item": "Sticker Paper",
+        "a4": 2.5,
+        "a3": 5
+      },
+      {
+        "item": "Glossy Lamination",
+        "a4": 0.5,
+        "a3": 1
+      },
+      {
+        "item": "Matte Lamination",
+        "a4": 0.6,
+        "a3": 1.2
+      },
+      {
+        "item": "Invoice Book",
+        "a4": 45,
+        "a3": 90
+      }
+    ],
+    "souvenirs": [
+      {
+        "item": "Keyring, one side with doming",
+        "price": 10
+      },
+      {
+        "item": "Keyring, double side with doming",
+        "price": 15
+      },
+      {
+        "item": "Mugs",
+        "price": 15
+      },
+      {
+        "item": "Plastic ID card, one side",
+        "price": 20
+      },
+      {
+        "item": "Plastic ID card, double side",
+        "price": 25
+      },
+      {
+        "item": "ID tag with printed lanyard",
+        "price": 25
+      },
+      {
+        "item": "ID tag with lanyard, no print",
+        "price": 15
+      },
+      {
+        "item": "Pens",
+        "price": 6
+      },
+      {
+        "item": "Handkerchiefs with print",
+        "price": 4
+      },
+      {
+        "item": "T-shirt, screen printing, double side",
+        "price": 40
+      },
+      {
+        "item": "T-shirt, screen printing, one side",
+        "price": 35
+      },
+      {
+        "item": "T-shirt, heat transfer, one side",
+        "price": 45
+      },
+      {
+        "item": "T-shirt, heat transfer, two side",
+        "price": 50
+      },
+      {
+        "item": "Magic mugs",
+        "price": 30
+      },
+      {
+        "item": "White mugs",
+        "price": 15
+      },
+      {
+        "item": "Gold mugs",
+        "price": 20
+      },
+      {
+        "item": "Colored mugs",
+        "price": 20
+      },
+      {
+        "item": "Mug print only, without mug",
+        "price": 5
+      },
+      {
+        "item": "Plates",
+        "price": 30
+      }
+    ],
+    "other": [
+      {
+        "item": "Business cards, front only",
+        "price": 60
+      },
+      {
+        "item": "Business cards, front & back",
+        "price": 120
+      },
+      {
+        "item": "Letterheads, bond paper, 1 ream",
+        "price": 350
+      },
+      {
+        "item": "Letterheads, special paper, 1 ream",
+        "price": 500
+      },
+      {
+        "item": "Roll-up display stand, without print",
+        "price": 300
+      },
+      {
+        "item": "Roll-up display stand, with print (PVC)",
+        "price": 450
+      },
+      {
+        "item": "Roll-up display stand, with print (Flexi)",
+        "price": 400
+      },
+      {
+        "item": "Flag pole 1x4m",
+        "price": 1200
+      },
+      {
+        "item": "Flag pole 1x4m, with print",
+        "price": 1500
+      }
+    ]
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "name": "BluPrint Advertising Quote Desk",
+  "short_name": "BluPrint Advertising",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f6f4ee",
+  "theme_color": "#1b1b1b",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
