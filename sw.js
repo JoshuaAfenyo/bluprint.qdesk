@@ -1,12 +1,14 @@
 // Bump this string every time you push updated prices or files.
 // A new CACHE name is what tells the service worker "there's a new version".
-const CACHE = "qdesk-bluprint-v1";
+const CACHE = "qdesk-bluprint-v2";
 
 const FILES_TO_CACHE = [
   "./",
   "./index.html",
   "./config.json",
+  "./manifest.json",
   "./icon.svg",
+  "./icon-180.png",
   "./logo.jpg"
 ];
 
@@ -30,18 +32,27 @@ self.addEventListener("activate", (event) => {
   );
 });
 
-// Fetch: try the network first (so rates are always current when online),
-// and cache each fresh response as we go. Only fall back to the cached
-// copy if the network request fails (offline / no connection).
+// Fetch:
+// - config.json is network-first, cache as fallback. Prices should reach
+//   an already-installed app on the next online load, without waiting on
+//   a CACHE version bump. The fresh response is stashed in the cache so
+//   offline use still shows the last-known prices.
+// - everything else stays cache-first (works offline, fast to load).
 self.addEventListener("fetch", (event) => {
+  if (event.request.url.endsWith("/config.json")) {
+    event.respondWith(
+      fetch(event.request)
+        .then((res) => {
+          const copy = res.clone();
+          caches.open(CACHE).then((cache) => cache.put(event.request, copy));
+          return res;
+        })
+        .catch(() => caches.match(event.request))
+    );
+    return;
+  }
   event.respondWith(
-    fetch(event.request)
-      .then((networkResponse) => {
-        const responseClone = networkResponse.clone();
-        caches.open(CACHE).then((cache) => cache.put(event.request, responseClone));
-        return networkResponse;
-      })
-      .catch(() => caches.match(event.request))
+    caches.match(event.request).then((cached) => cached || fetch(event.request))
   );
 });
 

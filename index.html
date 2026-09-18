@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Quote Desk</title>
 <meta name="theme-color" content="#1b1b1b" id="themeColorMeta">
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>
   :root{
     --ink:#1b1b1b;
@@ -77,7 +81,7 @@
     width:100px;
     height:100px;
     object-fit:contain;
-    background:#ffffff;
+    background:#0a0a2e;
     border-radius:16px;
     box-shadow:0 4px 14px rgba(27,27,27,0.18);
   }
@@ -179,6 +183,23 @@
     grid-template-columns: 1fr 1fr;
     gap:12px;
   }
+  [hidden]{ display:none !important; }
+
+  /* Rounded pill selector (Print Only / Print & Cut, DTF sizes) */
+  .pill-group{display:flex; gap:6px; flex-wrap:wrap;}
+  .pill-group button{
+    font-family:inherit;
+    font-size:13px;
+    font-weight:700;
+    padding:8px 14px;
+    border:1.5px solid var(--ink);
+    background:var(--paper);
+    color:var(--ink);
+    border-radius:20px;
+    cursor:pointer;
+  }
+  .pill-group button.on{background:var(--tape); border-color:var(--tape-dark);}
+  @media (max-width:520px){ .pill-group button{padding:10px 16px;} }
 
   .toggle-group{
     display:flex;
@@ -200,19 +221,6 @@
   }
   .toggle-group button:last-child{border-right:none;}
   .toggle-group button.on{background:var(--cut); color:#fff;}
-
-  .tier-tabs{display:flex; gap:6px; margin-bottom:18px; flex-wrap:wrap;}
-  .tier-tabs button{
-    font-family:inherit;
-    font-size:13px;
-    font-weight:700;
-    padding:8px 14px;
-    border:1.5px solid var(--ink);
-    background:var(--paper);
-    border-radius:20px;
-    cursor:pointer;
-  }
-  .tier-tabs button.on{background:var(--tape); border-color:var(--tape-dark);}
 
   .result{
     margin-top:22px;
@@ -341,47 +349,60 @@
   <button class="tab-btn" data-panel="digital">Digital Press</button>
   <button class="tab-btn" data-panel="souvenirs">Souvenirs &amp; Other</button>
   <button class="tab-btn" data-panel="converter">Unit Converter</button>
+  <button class="tab-btn" data-panel="pricelist">Price List</button>
 </nav>
 
 <main>
 
   <!-- LARGE FORMAT -->
   <section id="large" class="panel active">
-    <div class="tier-tabs" id="tierTabs"></div>
     <div class="card">
-      <div class="grid">
-        <div class="field">
-          <label for="material">Material</label>
-          <select id="material"></select>
+      <div class="field">
+        <label for="material">Material</label>
+        <select id="material"></select>
+      </div>
+
+      <!-- Only shown for materials that offer both services -->
+      <div class="field" id="serviceField" hidden>
+        <label>Service</label>
+        <div class="pill-group" id="serviceToggle">
+          <button data-service="printOnly" class="on">Print Only</button>
+          <button data-service="printCut">Print &amp; Cut</button>
         </div>
+      </div>
+
+      <!-- Priced per area (everything except DTF) -->
+      <div id="areaFields">
         <div class="field">
-          <label for="rateType">Rate</label>
-          <div class="toggle-group" id="rateToggle">
-            <button data-rate="general" class="on">General</button>
-            <button data-rate="designer">Designer</button>
+          <label>Dimension unit</label>
+          <div class="toggle-group" id="unitToggle">
+            <button data-unit="in" class="on">Inches</button>
+            <button data-unit="ft">Feet</button>
+            <button data-unit="m">Meters</button>
+            <button data-unit="cm">Centimeters</button>
+          </div>
+        </div>
+        <div class="dim-row">
+          <div class="field">
+            <label for="width">Width</label>
+            <input type="number" id="width" min="0" step="1" value="1">
+          </div>
+          <div class="field">
+            <label for="length">Length</label>
+            <input type="number" id="length" min="0" step="1" value="1">
           </div>
         </div>
       </div>
 
-      <div class="field">
-        <label for="unit">Dimension unit</label>
-        <div class="toggle-group" id="unitToggle">
-          <button data-unit="in" class="on">Inches</button>
-          <button data-unit="ft">Feet</button>
-          <button data-unit="m">Meters</button>
-          <button data-unit="cm">Centimeters</button>
-        </div>
+      <!-- Priced per sheet (DTF) -->
+      <div class="field" id="sheetField" hidden>
+        <label>Sheet size</label>
+        <div class="pill-group" id="sizeToggle"></div>
       </div>
 
-      <div class="dim-row">
-        <div class="field">
-          <label for="width">Width</label>
-          <input type="number" id="width" min="0" step="0.01" value="1">
-        </div>
-        <div class="field">
-          <label for="height">Length</label>
-          <input type="number" id="height" min="0" step="0.01" value="1">
-        </div>
+      <div class="field">
+        <label for="qty">Quantity</label>
+        <input type="number" id="qty" min="1" step="1" value="1">
       </div>
 
       <div class="result">
@@ -426,7 +447,7 @@
       <div class="grid">
         <div class="field">
           <label for="convValue">Value</label>
-          <input type="number" id="convValue" min="0" step="0.01" value="1">
+          <input type="number" id="convValue" min="0" step="1" value="1">
         </div>
         <div class="field">
           <label for="convUnit">Unit</label>
@@ -443,6 +464,30 @@
       <table>
         <tbody id="convTable"></tbody>
       </table>
+    </div>
+  </section>
+
+  <!-- PRICE LIST -->
+  <section id="pricelist" class="panel">
+    <div class="card">
+      <div class="sub" id="priceListNote" style="margin-bottom:14px;"></div>
+      <table>
+        <thead>
+          <tr>
+            <th>Material</th>
+            <th style="text-align:right">Print Only</th>
+            <th style="text-align:right">Print &amp; Cut</th>
+          </tr>
+        </thead>
+        <tbody id="priceListTable"></tbody>
+      </table>
+      <div id="sheetPriceBlock" hidden>
+        <div class="section-title">Per sheet</div>
+        <table>
+          <thead id="sheetPriceHead"></thead>
+          <tbody id="sheetPriceTable"></tbody>
+        </table>
+      </div>
     </div>
   </section>
 
@@ -467,12 +512,23 @@ const AREA_UNIT_LABEL = { in: 'in²', ft: 'ft²', m: 'm²', cm: 'cm²' };
 
 let PRICE_UNIT = null; // the unit config.json's rates are priced per -- must be set explicitly by config, never guessed
 
-// Converts a width x height entered in `fromUnit` into an area expressed
+// Converts a width x length entered in `fromUnit` into an area expressed
 // in PRICE_UNIT, so rates never need manual unit conversion when a shop's
 // working unit already matches PRICE_UNIT (the common case: zero conversion).
-function toPriceUnitArea(width, height, fromUnit){
-  const area = width * height;
+function toPriceUnitArea(width, length, fromUnit){
+  const area = width * length;
   return area * AREA_FACTOR[PRICE_UNIT] / AREA_FACTOR[fromUnit];
+}
+
+// Converts a single dimension entered in `fromUnit` into feet, regardless
+// of PRICE_UNIT -- used for surcharge thresholds that are defined in feet
+// (e.g. the Flexi large-size surcharge) no matter what unit the shop is
+// currently working in.
+function toFeet(value, fromUnit){
+  if(fromUnit === 'ft') return value; // no conversion needed, avoids float noise at exact boundaries
+  const metersPerUnit = 1 / Math.sqrt(AREA_FACTOR[fromUnit]);
+  const feetPerMeter = Math.sqrt(AREA_FACTOR.ft);
+  return Math.round(value * metersPerUnit * feetPerMeter * 1e6) / 1e6;
 }
 
 // ---------- TABS ----------
@@ -486,63 +542,89 @@ document.querySelectorAll('.tab-btn').forEach(btn=>{
 });
 
 // ---------- APP STATE (populated from config.json) ----------
-let largeFormatData = {};
+let largeFormatData = [];      // ordered list of materials, straight from config.json
 let digitalData = [];
 let souvenirData = [];
 let otherData = [];
-let currentTier = "";
-let currentRate = "general";
 let currentUnit = "in";
+let preferredService = "printOnly"; // what the person last picked; only applies to materials that offer it
+let currentSize = null;             // sheet size for per-sheet materials (DTF)
 
-const tierTabsEl = document.getElementById('tierTabs');
+const SERVICE_LABEL = { printOnly: 'Print Only', printCut: 'Print & Cut' };
+
 const materialSelect = document.getElementById('material');
+const serviceField   = document.getElementById('serviceField');
+const areaFields     = document.getElementById('areaFields');
+const sheetField     = document.getElementById('sheetField');
+const sizeToggle     = document.getElementById('sizeToggle');
 
-function buildTierTabs(){
-  tierTabsEl.innerHTML = '';
-  Object.keys(largeFormatData).forEach((tier, i)=>{
-    if(i === 0) currentTier = tier;
-    const b = document.createElement('button');
-    b.textContent = tier;
-    if(tier === currentTier) b.classList.add('on');
-    b.addEventListener('click', ()=>{
-      currentTier = tier;
-      document.querySelectorAll('#tierTabs button').forEach(x=>x.classList.remove('on'));
-      b.classList.add('on');
-      populateMaterials();
-      calcLarge();
-    });
-    tierTabsEl.appendChild(b);
-  });
+// A material is priced one of two ways:
+//   per sheet  -> has a "sizes" object   (e.g. DTF: {A4: 4, A3: 8})
+//   per area   -> has "printOnly", and optionally "printCut"
+const isSheet     = m => !!(m && m.sizes);
+const hasPrintCut = m => !!(m && typeof m.printCut === 'number');
+const currentMaterial = () => largeFormatData[materialSelect.value];
+
+// Print & Cut only counts when the material actually offers it.
+// Otherwise the quote is always Print Only, whatever was picked before.
+function effectiveService(mat){
+  return (hasPrintCut(mat) && preferredService === 'printCut') ? 'printCut' : 'printOnly';
 }
 
 function populateMaterials(){
-  // Remember the currently selected material by NAME (not index) before
-  // rebuilding the list, since the same material can sit at a different
-  // index -- or not exist at all -- in another tier's material array.
-  const list = materialSelect.options[materialSelect.selectedIndex];
-  const previousMaterial = list ? list.textContent : null;
-
   materialSelect.innerHTML = '';
-  (largeFormatData[currentTier] || []).forEach((m, i)=>{
+  largeFormatData.forEach((m, i)=>{
     const opt = document.createElement('option');
     opt.value = i;
     opt.textContent = m.material;
     materialSelect.appendChild(opt);
   });
+}
 
-  // Re-select the same material if the new tier still offers it;
-  // otherwise fall back to the first option (previous behavior).
-  if(previousMaterial){
-    const matchIdx = (largeFormatData[currentTier] || []).findIndex(m => m.material === previousMaterial);
-    if(matchIdx !== -1) materialSelect.value = matchIdx;
+// Shows only the controls that make sense for the selected material.
+function syncLargeControls(){
+  const mat = currentMaterial();
+  if(!mat) return;
+  const sheet = isSheet(mat);
+
+  areaFields.hidden   = sheet;
+  sheetField.hidden   = !sheet;
+  serviceField.hidden = sheet || !hasPrintCut(mat);
+
+  if(!serviceField.hidden){
+    const svc = effectiveService(mat);
+    document.querySelectorAll('#serviceToggle button').forEach(b=>{
+      b.classList.toggle('on', b.dataset.service === svc);
+    });
+  }
+
+  if(sheet){
+    const sizes = Object.keys(mat.sizes);
+    if(!sizes.includes(currentSize)) currentSize = sizes[0];
+    sizeToggle.innerHTML = '';
+    sizes.forEach(s=>{
+      const b = document.createElement('button');
+      b.dataset.size = s;
+      b.textContent = s;
+      b.classList.toggle('on', s === currentSize);
+      sizeToggle.appendChild(b);
+    });
   }
 }
 
-document.getElementById('rateToggle').addEventListener('click', e=>{
+materialSelect.addEventListener('input', ()=>{ syncLargeControls(); calcLarge(); });
+
+document.getElementById('serviceToggle').addEventListener('click', e=>{
   if(e.target.tagName !== 'BUTTON') return;
-  currentRate = e.target.dataset.rate;
-  document.querySelectorAll('#rateToggle button').forEach(b=>b.classList.remove('on'));
-  e.target.classList.add('on');
+  preferredService = e.target.dataset.service;
+  syncLargeControls();
+  calcLarge();
+});
+
+sizeToggle.addEventListener('click', e=>{
+  if(e.target.tagName !== 'BUTTON') return;
+  currentSize = e.target.dataset.size;
+  syncLargeControls();
   calcLarge();
 });
 
@@ -554,26 +636,49 @@ document.getElementById('unitToggle').addEventListener('click', e=>{
   calcLarge();
 });
 
-['material','width','height'].forEach(id=>{
+['width','length','qty'].forEach(id=>{
   document.getElementById(id).addEventListener('input', calcLarge);
 });
 
 function calcLarge(){
-  const idx = materialSelect.value;
-  const mat = (largeFormatData[currentTier] || [])[idx];
+  const mat = currentMaterial();
   if(!mat) return;
-  const w = parseFloat(document.getElementById('width').value) || 0;
-  const h = parseFloat(document.getElementById('height').value) || 0;
-  const area = toPriceUnitArea(w, h, currentUnit);
-  const rate = mat[currentRate];
-  const total = area * rate;
+  // Math.max(0, ...) guards against negative input: parseFloat(...) || 0
+  // only replaces NaN/empty/zero, so a manually-typed "-10" would otherwise
+  // slip through and produce a negative "quoted price".
+  const qty = Math.max(0, parseFloat(document.getElementById('qty').value) || 0);
+  let total, meta;
+
+  if(isSheet(mat)){
+    // Per-sheet pricing (DTF): size x quantity, no dimensions involved.
+    const price = mat.sizes[currentSize];
+    total = price * qty;
+    meta = `${mat.material} · ${currentSize} · @ ${fmt(price)} per sheet`;
+  } else {
+    const service = effectiveService(mat);
+    const w = Math.max(0, parseFloat(document.getElementById('width').value) || 0);
+    const l = Math.max(0, parseFloat(document.getElementById('length').value) || 0);
+    const area = toPriceUnitArea(w, l, currentUnit);
+
+    let rate = service === 'printCut' ? mat.printCut : mat.printOnly;
+
+    // Large-size rate (Flexi): applies once BOTH width and length exceed the
+    // threshold, whichever unit the dimensions were entered in.
+    let largeApplied = false;
+    if(mat.largeSize && service === 'printOnly'){
+      if(toFeet(w, currentUnit) > mat.largeSize.aboveFt && toFeet(l, currentUnit) > mat.largeSize.aboveFt){
+        rate = mat.largeSize.rate;
+        largeApplied = true;
+      }
+    }
+
+    total = area * rate * qty;
+    meta = `${mat.material} · ${SERVICE_LABEL[service]} · @ ${fmt(rate)}/${AREA_UNIT_LABEL[PRICE_UNIT]}`
+         + (largeApplied ? ` (over ${mat.largeSize.aboveFt}ft)` : '');
+  }
 
   document.getElementById('largeResult').textContent = fmt(total);
-  const unitLabel = {in:'in', ft:'ft', m:'m', cm:'cm'}[currentUnit];
-  const priceUnitLabel = AREA_UNIT_LABEL[PRICE_UNIT];
-  document.getElementById('largeMeta').textContent =
-    `${mat.material} · ${currentTier} · ${currentRate === 'general' ? 'General' : 'Designer'} rate `
-    + `· ${w}${unitLabel} × ${h}${unitLabel} = ${area.toFixed(4)} ${priceUnitLabel} @ ${fmt(rate)}/${priceUnitLabel}`;
+  document.getElementById('largeMeta').textContent = meta;
 }
 
 // ---------- DIGITAL PRESS ----------
@@ -584,7 +689,7 @@ function renderDigital(filter=''){
     .filter(d => d.item.toLowerCase().includes(filter.toLowerCase()))
     .forEach(d=>{
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${d.item}</td><td class="price" style="text-align:right">${fmt(d.a4)}</td><td class="price" style="text-align:right">${fmt(d.a3)}</td>`;
+      tr.innerHTML = `<td>${escapeHTML(d.item)}</td><td class="price" style="text-align:right">${fmt(d.a4)}</td><td class="price" style="text-align:right">${fmt(d.a3)}</td>`;
       digitalTable.appendChild(tr);
     });
 }
@@ -599,7 +704,7 @@ function renderList(tableEl, data, filter=''){
     .filter(d => d.item.toLowerCase().includes(filter.toLowerCase()))
     .forEach(d=>{
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${d.item}</td><td class="price" style="text-align:right">${fmt(d.price)}</td>`;
+      tr.innerHTML = `<td>${escapeHTML(d.item)}</td><td class="price" style="text-align:right">${fmt(d.price)}</td>`;
       tableEl.appendChild(tr);
     });
 }
@@ -607,6 +712,36 @@ document.getElementById('souvSearch').addEventListener('input', e=>{
   renderList(souvTable, souvenirData, e.target.value);
   renderList(otherTable, otherData, e.target.value);
 });
+
+// ---------- PRICE LIST (generated from the same largeFormat data) ----------
+const priceListTable = document.getElementById('priceListTable');
+function renderPriceList(){
+  priceListTable.innerHTML = '';
+  const cell = v => `<td class="price" style="text-align:right">${typeof v === 'number' ? fmt(v) : '-'}</td>`;
+
+  largeFormatData.filter(m => !isSheet(m)).forEach(m=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${escapeHTML(m.material)}</td>${cell(m.printOnly)}${cell(m.printCut)}`;
+    priceListTable.appendChild(tr);
+    if(m.largeSize){
+      const tr2 = document.createElement('tr');
+      tr2.innerHTML = `<td>${escapeHTML(m.material)} above ${m.largeSize.aboveFt}ft</td>${cell(m.largeSize.rate)}${cell(null)}`;
+      priceListTable.appendChild(tr2);
+    }
+  });
+
+  // Per-sheet materials (DTF) get their own small table: A4 / A3 columns.
+  const sheets = largeFormatData.filter(isSheet);
+  const block = document.getElementById('sheetPriceBlock');
+  block.hidden = sheets.length === 0;
+  if(sheets.length){
+    const sizes = [...new Set(sheets.flatMap(m => Object.keys(m.sizes)))];
+    document.getElementById('sheetPriceHead').innerHTML =
+      `<tr><th>Material</th>${sizes.map(s=>`<th style="text-align:right">${escapeHTML(s)}</th>`).join('')}</tr>`;
+    document.getElementById('sheetPriceTable').innerHTML = sheets.map(m =>
+      `<tr><td>${escapeHTML(m.material)}</td>${sizes.map(s=>cell(m.sizes[s])).join('')}</tr>`).join('');
+  }
+}
 
 // ---------- UNIT CONVERTER ----------
 const toMeters = {in: 0.0254, ft: 0.3048, m: 1, cm: 0.01, mm: 0.001};
@@ -648,27 +783,6 @@ function applyTheme(theme){
   if(theme && theme.ink){
     document.getElementById('themeColorMeta').setAttribute('content', theme.ink);
   }
-}
-
-function applyManifest(config){
-  // Manifest name/short_name/colors are generated from config at runtime,
-  // so a shop only ever needs to edit config.json -- never manifest.json --
-  // to rebrand the installed-app name and icon background.
-  const manifest = {
-    name: (config.shopName ? config.shopName + " Quote Desk" : "Quote Desk"),
-    short_name: config.shopName || "Quote Desk",
-    start_url: "./index.html",
-    display: "standalone",
-    background_color: (config.theme && config.theme.paper) || "#f6f4ee",
-    theme_color: (config.theme && config.theme.ink) || "#1b1b1b",
-    icons: [{ src: "icon.svg", sizes: "any", type: "image/svg+xml" }]
-  };
-  const blob = new Blob([JSON.stringify(manifest)], {type: "application/json"});
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('link');
-  link.rel = "manifest";
-  link.href = url;
-  document.head.appendChild(link);
 }
 
 const ICONS = {
@@ -734,7 +848,6 @@ function initApp(config){
   LOCALE = config.locale || "en-US";
 
   applyTheme(config.theme);
-  applyManifest(config);
 
   const pricing = config.pricing || {};
 
@@ -760,18 +873,21 @@ function initApp(config){
     });
   }
 
-  largeFormatData = pricing.largeFormat || {};
+  largeFormatData = Array.isArray(pricing.largeFormat) ? pricing.largeFormat : [];
   digitalData = pricing.digital || [];
   souvenirData = pricing.souvenirs || [];
   otherData = pricing.other || [];
 
-  buildTierTabs();
   populateMaterials();
+  syncLargeControls();
   calcLarge();
   renderDigital();
   renderList(souvTable, souvenirData);
   renderList(otherTable, otherData);
   renderConverter();
+  document.getElementById('priceListNote').textContent =
+    `Prices are per square ${PRICE_UNIT === 'in' ? 'inch' : PRICE_UNIT === 'ft' ? 'foot' : PRICE_UNIT === 'm' ? 'meter' : 'centimeter'} (${AREA_UNIT_LABEL[PRICE_UNIT]}). "-" means not offered.`;
+  renderPriceList();
 
   document.getElementById('appRoot').style.display = '';
 }
