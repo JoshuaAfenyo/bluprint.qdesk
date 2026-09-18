@@ -180,8 +180,12 @@
 
   .dim-row{
     display:grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     gap:12px;
+  }
+  @media (max-width:640px){
+    .dim-row{ grid-template-columns: 1fr 1fr; }
+    #qtySlot{ grid-column: 1 / -1; }
   }
   [hidden]{ display:none !important; }
 
@@ -391,6 +395,7 @@
             <label for="length">Length</label>
             <input type="number" id="length" min="0" step="1" value="1">
           </div>
+          <div id="qtySlot"></div>
         </div>
       </div>
 
@@ -400,7 +405,7 @@
         <div class="pill-group" id="sizeToggle"></div>
       </div>
 
-      <div class="field">
+      <div class="field" id="qtyField">
         <label for="qty">Quantity</label>
         <input type="number" id="qty" min="1" step="1" value="1">
       </div>
@@ -557,6 +562,8 @@ const serviceField   = document.getElementById('serviceField');
 const areaFields     = document.getElementById('areaFields');
 const sheetField     = document.getElementById('sheetField');
 const sizeToggle     = document.getElementById('sizeToggle');
+const qtyField       = document.getElementById('qtyField');
+const qtySlot        = document.getElementById('qtySlot');
 
 // A material is priced one of two ways:
 //   per sheet  -> has a "sizes" object   (e.g. DTF: {A4: 4, A3: 8})
@@ -590,6 +597,15 @@ function syncLargeControls(){
   areaFields.hidden   = sheet;
   sheetField.hidden   = !sheet;
   serviceField.hidden = sheet || !hasPrintCut(mat);
+
+  // Quantity sits inline with Width/Length on wide screens (see #qtySlot in
+  // the dim-row grid) but has no width/length to join in per-sheet (DTF)
+  // mode, so it moves back to its own standalone row after Sheet size.
+  if(sheet){
+    sheetField.insertAdjacentElement('afterend', qtyField);
+  } else {
+    qtySlot.appendChild(qtyField);
+  }
 
   if(!serviceField.hidden){
     const svc = effectiveService(mat);
