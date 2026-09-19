@@ -1,6 +1,6 @@
 // Bump this string every time you push updated prices or files.
 // A new CACHE name is what tells the service worker "there's a new version".
-const CACHE = "qdesk-bluprint-v2";
+const CACHE = "qdesk-bluprint-v3";
 
 const FILES_TO_CACHE = [
   "./",
